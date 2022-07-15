@@ -4,40 +4,37 @@ import { useState } from "react";
 
 const Countries = (props) => {
   let data = props.data;
+  let setData = props.setData;
   const formik = useFormik({
-    initialValues: data,
-  });
-  const addForm = useFormik({
     initialValues: {
       name: "",
       code: "",
       description: "",
     },
   });
-
-  let [exp, setExp] = useState(["1"]);
-
   const handelSubmitAddForm = () => {
-    formik.values.push(addForm.values);
     console.log(formik.values);
-    setExp(["2"]);
+    setData([...data, formik.values]);
   };
+  let [code, setCode] = useState("");
+  const handleDeleteCountry = (c) => {
+    setCode(c);
+  };
+  const handleSubmitDelete = () => {
+    console.log(code);
+    
+    setData(data.filter(i => i.code !== code))
+  };
+  const handleEditCountry = (c) => {
+    setCode(c);
+    console.log(code);
+  };
+  const handleSubmitEditCountry = () => {
+    console.log(code);
+    setData(data.map((item) => (item.code === code ? formik.values : item)));
+  };
+  console.log(data);
 
-  const handleDeleteCountry = (code) => {
-    let data = formik.values;
-    data.splice(
-      data.findIndex(function (i) {
-        return i.code === code;
-      }),
-      1
-    );
-    formik.values = data;
-    setExp(["3"]);
-  };
-  let [index, setIndex] = useState(0);
-  const handleEditCountry = (e) => {
-    setIndex(e);
-  };
   return (
     <div className="container table-country ">
       <div className="modal  fade" id="modal" role="dialog">
@@ -56,8 +53,8 @@ const Countries = (props) => {
                   type="text"
                   name="name"
                   placeholder="Enter your country"
-                  value={addForm.values.name}
-                  onChange={addForm.handleChange}
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
                 />
               </div>
               <div className="form-group">
@@ -66,8 +63,8 @@ const Countries = (props) => {
                   type="text"
                   name="code"
                   placeholder="Enter your code"
-                  value={addForm.values.code}
-                  onChange={addForm.handleChange}
+                  value={formik.values.code}
+                  onChange={formik.handleChange}
                 />
                 <br />
               </div>
@@ -77,8 +74,8 @@ const Countries = (props) => {
                   type="text"
                   name="description"
                   placeholder="Enter your country"
-                  value={addForm.values.description}
-                  onChange={addForm.handleChange}
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
                 />
                 <br />
               </div>
@@ -119,7 +116,7 @@ const Countries = (props) => {
                   className="btn btn-success"
                   data-dismiss="modal"
                   id="btn-creat"
-                  onClick={() => handleDeleteCountry()}
+                  onClick={() => handleSubmitDelete()}
                 >
                   Yes
                 </button>
@@ -146,15 +143,15 @@ const Countries = (props) => {
               <h2 className="text-left">Edit Country</h2>
             </div>
             <div className="modal-body">
-              {formik.values.length > 0 && (
+              {formik.values && (
                 <>
                   <div className="form-group">
                     <label>Name</label>
                     <input
                       type="text"
                       name="name"
-                      placeholder="Enter your code"
-                      value={formik.values[index].name}
+                      placeholder="Enter your name"
+                      //   value={data}
                       onChange={formik.handleChange}
                     />
                   </div>
@@ -164,7 +161,6 @@ const Countries = (props) => {
                       type="text"
                       name="code"
                       placeholder="Enter your code"
-                      value={formik.values[index].code}
                       onChange={formik.handleChange}
                     />
                     <br />
@@ -175,7 +171,6 @@ const Countries = (props) => {
                       type="text"
                       name="description"
                       placeholder="Enter your country"
-                      value={formik.values[index].description}
                       onChange={formik.handleChange}
                     />
                     <br />
@@ -187,6 +182,7 @@ const Countries = (props) => {
                   className="btn btn-success"
                   data-dismiss="modal"
                   id="btn-creat"
+                  onClick={() => handleSubmitEditCountry()}
                 >
                   Submit
                 </button>
@@ -222,9 +218,9 @@ const Countries = (props) => {
           </tr>
         </thead>
         <tbody>
-          {formik.values &&
-            formik.values.length > 0 &&
-            formik.values.map((item, index) => {
+          {data &&
+            data.length > 0 &&
+            data.map((item, index) => {
               return (
                 <tr key={index}>
                   <td className="text-center">{item.name}</td>
@@ -236,7 +232,7 @@ const Countries = (props) => {
                       type="button"
                       data-toggle="modal"
                       data-target="#modal-edit"
-                      onClick={() => handleEditCountry(index)}
+                      onClick={() => handleEditCountry(item.code)}
                     >
                       Edit
                     </button>
@@ -245,6 +241,7 @@ const Countries = (props) => {
                       type="button"
                       data-toggle="modal"
                       data-target="#modal-delete"
+                      onClick={() => handleDeleteCountry(item.code)}
                     >
                       Delete
                     </button>
